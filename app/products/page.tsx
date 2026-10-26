@@ -7,7 +7,7 @@ export default function ProductsPage() {
   return (
     <main>
       <h1>상품 목록</h1>
-      <ul>
+      <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {PRODUCTS.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
