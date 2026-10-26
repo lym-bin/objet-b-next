@@ -11,7 +11,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { id, name, imgSrc, price } = product;
   return (
     <li>
-      <Link href={`products/${id}`}>
+      <Link href={`/products/${id}`}>
         <div className="relative aspect-[3/4]">
           <Image
             src={`/${imgSrc}`}

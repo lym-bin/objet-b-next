@@ -4,6 +4,11 @@ import { notFound } from "next/navigation";
 import { PRODUCTS } from "@/data/ProductsData";
 import Image from "next/image";
 
+// 빌드할 때 이 번호들로 상세 페이지를 미리 만들어줌 (SSG)
+export function generateStaticParams() {
+  return PRODUCTS.map((product) => ({ id: String(product.id) }));
+}
+
 export default async function ProductDetailPage({
   params,
 }: {
