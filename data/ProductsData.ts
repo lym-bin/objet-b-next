@@ -1,0 +1,274 @@
+// src/ProductList/ProductsData.ts
+// 상품 데이터의 단일 소스 (정적 배열) 목록/상세/추천/최근 본 상품 모두 여기서 참조
+import type { CategoryId } from "./Categories"; // "top" | "outer" | "pants" | "shoes" 중 하나인 타입
+import { COLOR_OPTIONS, type ColorOption } from "./OptionsData"; // 색상 옵션 다일 소스 + 그 타입
+
+// 상품 하나의 "모양" 설계도
+// 옵셔널: ?(있어도 되고 없어도 되는 필드 없으면 undefined)
+// 옵셔널 체이닝: ?.(없으면 안전하게 undefined주고 넘어가라)
+// 둘 다 존재 여부가 불확실해서 쓰는 것
+export interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: CategoryId; // 위에서 import한 타입 -> 오탈자 방지 ("tops같은 오탈자 방지")
+  imgSrc: string; // 목록 썸네일용 대표 이미지
+  images?: string[]; // ? = 선택, 상세페이지용 추가 이미지들 (대표컷/모델컷)
+  reviewImgSrc?: string; // ? = 선택, "스타일링 컷" 전용 착용샷 (없으면 imgSrc로 폴백)
+  isLarge?: boolean; // ? 그리드에서 2칸 차지할지
+  similarProductIds?: number[]; // 비슷한 제품들의 ID배열 추가
+  reviewProductIds?: number[]; // 스타일링 컷용 ID 배열 추가
+  colors?: ColorOption[]; // 상품별 선택 가능한 색상 (없으면 전체 옵션 노출)
+  sizes?: string[]; // 상품별 선택 가능한 사이즈 (없으면 전체 옵션 노출)
+  description?: string; // 상품 상세 설명 (없으면 기본 문구 노출)
+  imgPosition?: string; // 목록 썸네일 크롭 기준점 (CSS object-position)
+  imgFit?: "cover" | "contain"; // 목록 썸네일 채움 방식(기본 cover, 전체를 채우려면 contain)
+}
+
+// COLOR_OPTIONS(단일 소스)에서 value 기준으로 골라 상품에 붙이기 위한 헬퍼
+// 예: pickColors("white", "black") -> [{value: "white", label:"화이트"}, {value:"black", label:"블랙"}]
+// ...values = 나머지 매개변수(rest parameter). 인자를 몇 개든 받아서 배열로 묶음
+function pickColors(...values: string[]): ColorOption[] {
+  return COLOR_OPTIONS.filter((c) => values.includes(c.value)); // value가 넘긴 목록에 포함도니 것만 남김
+}
+
+// 실제 상품 데이터 배열
+export const PRODUCTS: Product[] = [
+  // --- 상의 (Top) ---
+  {
+    id: 1,
+    name: "프리미엄 코튼 오버사이즈 화이트 티셔츠",
+    price: 48000,
+    category: "top",
+    imgSrc: "images/oversized-white-tshirt.webp", // 목록 썸네일
+    reviewImgSrc: "images/premium-cotton-oversized-white-tshirt-model.webp",
+    similarProductIds: [2, 3], // 상세 페이지 "비슷한 제품"에 2,3번 노출
+    reviewProductIds: [3, 4], // "스타일링 컷"에 3,4번 노출
+    colors: pickColors("white", "black", "beige", "gray"), // 헬퍼로 4개 색상 골라 넣음
+    sizes: ["S", "M", "L", "XL"],
+    description:
+      "고밀도 코튼 100%로 짜 늘어짐 없이 오래 입을 수 있는 오버사이즈 티셔츠. 어깨선을 살짝 내려 편안한 실루엣을 완성했습니다",
+  },
+  {
+    id: 2,
+    name: "베이직 시그니처 화이트 셔츠",
+    price: 64000,
+    category: "top",
+    imgSrc: "images/basic-white-shirt.webp",
+    reviewImgSrc: "images/card_1.webp",
+    similarProductIds: [3, 4],
+    reviewProductIds: [4, 1],
+    colors: pickColors("white", "black", "blue"),
+    sizes: ["XS", "S", "M", "L", "XL"],
+    description:
+      "어디에나 매치하기 좋은 클래식한 핏의 셔츠입니다. 단독으로 입거나 레이어드용으로 활용도가 높습니다.",
+  },
+  {
+    id: 3,
+    name: "릴랙스드 핏 니트 풀오버",
+    price: 82000,
+    category: "top",
+    imgSrc: "images/cable-knit-sweater.webp",
+    reviewImgSrc: "images/model_2.webp",
+    similarProductIds: [4, 1],
+    reviewProductIds: [1, 2],
+    colors: pickColors("beige", "brown", "black"),
+    sizes: ["S", "M", "L"],
+    description:
+      "부드러운 터치감과 여유로운 핏으로 포근하고 아늑한 착용감을 선사하는 니트입니다.",
+  },
+  {
+    id: 4,
+    name: "스트라이프 코튼 롱슬리브",
+    price: 55000,
+    category: "top",
+    imgSrc: "images/striped-long-sleeve-shirt.webp",
+    reviewImgSrc: "images/card_2.webp",
+    similarProductIds: [1, 2],
+    reviewProductIds: [2, 3],
+    colors: pickColors("white", "blue", "black"),
+    sizes: ["XS", "S", "M", "L", "XL"],
+    description:
+      "캐주얼한 무드의 스트라이프 패턴이 돋보이며, 간절기 단독 착용이나 레이어드에 제격인 롱슬리브입니다.",
+  },
+
+  // --- 아우터 (Outer) ---
+  {
+    id: 5,
+    name: "클래식 울 블렌드 오버사이즈 자켓",
+    price: 189000,
+    category: "outer",
+    imgSrc: "images/classic-wool-blend-blazer.webp",
+    reviewImgSrc: "images/card_4.webp",
+    similarProductIds: [6, 7],
+    reviewProductIds: [7, 8],
+    colors: pickColors("black", "gray", "brown"),
+    sizes: ["S", "M", "L", "XL"],
+    description:
+      "고급스러운 울 블렌드 소재와 트렌디한 오버사이즈 핏이 어우러져 세련된 아우터 룩을 완성해 줍니다.",
+  },
+  {
+    id: 6,
+    name: "빈티지 워시드 데님 자켓",
+    price: 135000,
+    category: "outer",
+    imgSrc: "images/denim-jacket.webp",
+    reviewImgSrc: "images/card_2.webp",
+    similarProductIds: [7, 8],
+    reviewProductIds: [8, 5],
+    colors: pickColors("blue", "black"),
+    sizes: ["S", "M", "L"],
+    description:
+      "자연스러운 워싱 디테일이 매력적이며, 다양한 이너와 캐주얼하게 매치하기 좋은 데님 자켓입니다.",
+  },
+  {
+    id: 7,
+    name: "미니멀 하프 트렌치 코트",
+    price: 210000,
+    category: "outer",
+    imgSrc: "images/charcoal-collar-jacket.webp",
+    reviewImgSrc: "images/card_4.webp",
+    isLarge: true,
+    similarProductIds: [8, 5],
+    reviewProductIds: [5, 6],
+    colors: pickColors("beige", "black", "brown"),
+    sizes: ["S", "M", "L", "XL"],
+    description:
+      "간절기 시즌에 가볍게 걸치기 좋은 미니멀한 기장감과 트렌디한 실루엣의 하프 트렌치 코트입니다.",
+  },
+  {
+    id: 8,
+    name: "모던 싱글 체스터필드 코트",
+    price: 260000,
+    category: "outer",
+    imgSrc: "images/wool-chesterfield-coat.webp",
+    reviewImgSrc: "images/card_4.webp",
+    similarProductIds: [5, 6],
+    reviewProductIds: [6, 7],
+    colors: pickColors("black", "gray", "brown"),
+    description:
+      "깔끔하게 떨어지는 싱글 브레스트 라인으로 클래식하면서도 모던한 분위기를 연출하는 코트입니다.",
+  },
+
+  // --- 바지 (Pants) ---
+  {
+    id: 9,
+    name: "와이드 핏 베이지 슬랙스",
+    price: 79000,
+    category: "pants",
+    imgSrc: "images/pleated-beige-slacks.webp",
+    reviewImgSrc: "images/card_1.webp",
+    isLarge: true,
+    similarProductIds: [10, 11],
+    reviewProductIds: [11, 12],
+    colors: pickColors("beige", "black", "gray"),
+    sizes: ["XS", "S", "M", "L", "XL"],
+    description:
+      "다리가 길어 보이는 여유로운 와이드 핏과 차분한 컬러감으로 포멀과 캐주얼을 모두 소화하는 슬랙스입니다.",
+  },
+  {
+    id: 10,
+    name: "센스 투턱 스트레이트 팬츠",
+    price: 68000,
+    category: "pants",
+    imgSrc: "images/pleated-charcoal-pants.webp",
+    reviewImgSrc: "images/card_4.webp",
+    similarProductIds: [11, 12],
+    reviewProductIds: [12, 9],
+    colors: pickColors("black", "gray", "brown"),
+    sizes: ["S", "M", "L", "XL"],
+    description:
+      "프론트 투턱 디테일로 멋스러운 입체감을 살린 트렌디한 스트레이트 팬츠입니다.",
+  },
+  {
+    id: 11,
+    name: "캐주얼 코튼 데님 팬츠",
+    price: 72000,
+    category: "pants",
+    imgSrc: "images/washed-blue-denim-pants.webp",
+    reviewImgSrc: "images/card_2.webp",
+    similarProductIds: [12, 9],
+    reviewProductIds: [9, 10],
+    colors: pickColors("blue", "black"),
+    sizes: ["XS", "S", "M", "L"],
+    description:
+      "탄탄한 코튼 데님 소재를 사용하여 데일리로 편안하게 입기 좋은 베이직 데님 팬츠입니다.",
+  },
+  {
+    id: 12,
+    name: "이지 드로우스트링 조거 팬츠",
+    price: 59000,
+    category: "pants",
+    imgSrc: "images/charcoal-jogger-pants.webp",
+    reviewImgSrc: "images/card_3.webp",
+    similarProductIds: [9, 10],
+    reviewProductIds: [10, 11],
+    colors: pickColors("black", "gray", "beige"),
+    sizes: ["S", "M", "L", "XL"],
+    description:
+      "허리 밴딩과 드로우스트링으로 편안한 착용감을 극대화한 캐주얼 조거 팬츠입니다.",
+  },
+  // --- 신발 (Shoes) ---
+  {
+    id: 13,
+    name: "미니멀 가죽 레더 스니커즈",
+    price: 143000,
+    category: "shoes",
+    imgSrc: "images/white-leather-sneakers.webp",
+    reviewImgSrc: "images/card_3.webp",
+    similarProductIds: [14, 15],
+    reviewProductIds: [15, 16],
+    colors: pickColors("black", "white", "gray"),
+    sizes: ["S", "M", "L"],
+    description:
+      "군더더기 없는 미니멀한 디자인으로 어떤 착장에나 자연스럽게 스며드는 레더 스니커즈입니다.",
+  },
+  {
+    id: 14,
+    name: "클래식 스웨이드 로퍼",
+    price: 165000,
+    category: "shoes",
+    imgSrc: "images/suede-penny-loafers.webp",
+    reviewImgSrc: "images/community-street-snap.webp",
+    similarProductIds: [15, 16],
+    reviewProductIds: [16, 13],
+    colors: pickColors("brown", "beige", "black"),
+    sizes: ["S", "M", "L"],
+    description:
+      "고급스러운 스웨이드 텍스처가 돋보이며, 단정한 스타일링에 품격을 더해주는 클래식 로퍼입니다.",
+  },
+  {
+    id: 15,
+    name: "어반 컴포트 첼시 부츠",
+    price: 198000,
+    category: "shoes",
+    imgSrc: "images/urban-chelsea-boots.webp",
+    reviewImgSrc: "images/card_4.webp",
+    imgFit: "contain",
+    similarProductIds: [16, 13],
+    reviewProductIds: [13, 14],
+    colors: pickColors("black", "brown"),
+    sizes: ["M", "L", "XL"],
+    description:
+      "신축성 있는 밴딩 디테일로 신고 벗기 편하며, 시크한 무드를 연출해 주는 첼시 부츠입니다.",
+  },
+  {
+    id: 16,
+    name: "데일리 캔버스 슬립온",
+    price: 49000,
+    category: "shoes",
+    imgSrc: "images/daily-canvas-slip-on.webp",
+    reviewImgSrc: "images/daily-canvas-model.webp",
+    imgFit: "contain",
+    images: [
+      "images/daily-canvas-slip-on.webp",
+      "images/daily-canvas-model.webp",
+    ],
+    similarProductIds: [13, 14],
+    reviewProductIds: [14, 15],
+    colors: pickColors("white", "black", "red"),
+    sizes: ["S", "M", "L", "XL"],
+    description:
+      "가벼운 캔버스 소재를 적용해 언제 어디서나 편안하게 신기 좋은 데일리 슬립온입니다.",
+  },
+];
