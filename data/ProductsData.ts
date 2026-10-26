@@ -272,3 +272,8 @@ export const PRODUCTS: Product[] = [
       "가벼운 캔버스 소재를 적용해 언제 어디서나 편안하게 신기 좋은 데일리 슬립온입니다.",
   },
 ];
+
+// 주소에서 온 id(문자열)로 상품 하나 찾기. 없으면 undefined
+export function getProductById(id: string): Product | undefined {
+  return PRODUCTS.find((p) => p.id === Number(id));
+}
