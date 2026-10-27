@@ -2,6 +2,8 @@
 // 서버 컴포넌트: 주소의 id로 상품 하나를 찾아서 보여줌
 import { notFound } from "next/navigation";
 import { getProductById, PRODUCTS } from "@/data/ProductsData";
+import ProductOptions from "@/components/ProductOptions";
+import { COLOR_OPTIONS, SIZE_OPTIONS } from "@/data/OptionsData";
 import Image from "next/image";
 import type { Metadata } from "next";
 // 빌드할 때 이 번호들로 상세 페이지를 미리 만들어줌 (SSG)
@@ -54,6 +56,10 @@ export default async function ProductDetailPage({
       <h1>{product.name}</h1>
       <p>{`${product.price.toLocaleString()}원`}</p>
       <p>{product.description}</p>
+      <ProductOptions
+        colors={product.colors ?? COLOR_OPTIONS}
+        sizes={product.sizes ?? SIZE_OPTIONS}
+      />
     </main>
   );
 }
