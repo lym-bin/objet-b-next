@@ -2,19 +2,27 @@
 
 import { useState } from "react";
 import type { ColorOption } from "@/data/OptionsData";
+import type { Product } from "@/data/ProductsData";
+import { useCart } from "@/context/CartContext";
 
 interface ProductOptionsProps {
+  product: Pick<Product, "id" | "name" | "price" | "imgSrc">; // Omit의 반대 이것만 고른다.
   colors: ColorOption[];
   sizes: string[];
 }
 
 const MAX_QTY = 20;
 
-export default function ProductOptions({ colors, sizes }: ProductOptionsProps) {
+export default function ProductOptions({
+  product,
+  colors,
+  sizes,
+}: ProductOptionsProps) {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [qty, setQty] = useState(1);
   const canAdd = selectedColor !== "" && selectedSize !== "";
+  const { addItem } = useCart();
 
   return (
     <div>
@@ -78,9 +86,15 @@ export default function ProductOptions({ colors, sizes }: ProductOptionsProps) {
         <button
           type="button"
           onClick={() =>
-            alert(
-              `색상: ${selectedColor}, 사이즈: ${selectedSize}, 수량: ${qty}개 `,
-            )
+            addItem({
+              productId: product.id,
+              name: product.name,
+              price: product.price,
+              imgSrc: product.imgSrc,
+              color: selectedColor,
+              size: selectedSize,
+              qty,
+            })
           }
           disabled={!canAdd}
         >
