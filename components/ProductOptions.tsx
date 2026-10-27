@@ -8,9 +8,13 @@ interface ProductOptionsProps {
   sizes: string[];
 }
 
+const MAX_QTY = 20;
+
 export default function ProductOptions({ colors, sizes }: ProductOptionsProps) {
   const [selectedColor, setSelectedColor] = useState("");
-  const [selectedSize, setSeletedSize] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [qty, setQty] = useState(1);
+  const canAdd = selectedColor !== "" && selectedSize !== "";
 
   return (
     <div>
@@ -40,7 +44,7 @@ export default function ProductOptions({ colors, sizes }: ProductOptionsProps) {
           <li key={size}>
             <button
               type="button"
-              onClick={() => setSeletedSize(size)}
+              onClick={() => setSelectedSize(size)}
               aria-pressed={selectedSize === size}
               className={`border px-3 py-1 ${selectedSize === size ? "border-black font-bold" : "border-gray-300"}`}
             >
@@ -49,6 +53,41 @@ export default function ProductOptions({ colors, sizes }: ProductOptionsProps) {
           </li>
         ))}
       </ul>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setQty((prev) => Math.max(1, prev - 1))} // 1 빼되, 1 아래로는 안 감
+          disabled={qty <= 1}
+          aria-label="수량 줄이기"
+        >
+          −
+        </button>
+        <span>{qty}</span>
+        <button
+          type="button"
+          onClick={() => setQty((prev) => Math.min(MAX_QTY, prev + 1))} // 1 더하되, 20 위로는 안 감
+          disabled={qty >= MAX_QTY}
+          aria-label="수량 늘리기"
+        >
+          +
+        </button>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          onClick={() =>
+            alert(
+              `색상: ${selectedColor}, 사이즈: ${selectedSize}, 수량: ${qty}개 `,
+            )
+          }
+          disabled={!canAdd}
+        >
+          담기
+        </button>
+        {!canAdd && <p>색상과 사이즈를 선택해 주세요</p>}
+      </div>
     </div>
   );
 }
