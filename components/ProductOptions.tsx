@@ -4,14 +4,13 @@ import { useState } from "react";
 import type { ColorOption } from "@/data/OptionsData";
 import type { Product } from "@/data/ProductsData";
 import { useCart } from "@/context/CartContext";
+import { MAX_QTY } from "@/data/OrderRules";
 
 interface ProductOptionsProps {
   product: Pick<Product, "id" | "name" | "price" | "imgSrc">; // Omit의 반대 이것만 고른다.
   colors: ColorOption[];
   sizes: string[];
 }
-
-const MAX_QTY = 20;
 
 export default function ProductOptions({
   product,

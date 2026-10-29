@@ -11,6 +11,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { MAX_QTY } from "@/data/OrderRules";
+
 export interface CartItem {
   id: string; // productId-color-size
   productId: number;
@@ -31,7 +33,6 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 const CART_STORAGE_KEY = "objet-b-cart";
-const MAX_QTY = 20; // TO-BE M5에서 한곳으로
 
 // localStorage에서 문자열을 꺼내 배열로 바꿈 (없으면 빈 배열). try/catch = 데이터가 깨졌거나 localstorage를 못 쓸때 앱이 안 죽게
 function loadItems(): CartItem[] {
