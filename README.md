@@ -43,6 +43,7 @@ app/                        ← 폴더 이름이 곧 주소
 │  ├─ page.tsx              /products  상품 목록
 │  └─ [id]/page.tsx         /products/1  상품 상세 (빌드 때 16개 미리 생성)
 └─ api/amount/route.ts      /api/amount  서버 금액 계산 (POST)
+components/
 ├─ Header.tsx               서버 컴포넌트
 ├─ CartCount.tsx            클라이언트 컴포넌트(장바구니 카운트)
 ├─ ProductCard.tsx          서버 컴포넌트(상품 카드, 이름, 이미지, 가격)
@@ -51,6 +52,7 @@ context/CartContext.tsx     장바구니 상태 + useCart 훅
 data/                       상품·옵션 데이터, 주문 규칙(MAX_QTY)
 utils/calculateAmount.ts    서버 금액 계산 함수
 ```
+## 트러블슈팅
 
 ### 1. 장바구니 하이드레이션
 
