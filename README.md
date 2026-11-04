@@ -11,23 +11,24 @@ Vite 기반 Objet & B의 상품 목록·상세·장바구니를 Next.js(App Rout
 
 ## Vite 버전과 비교
 
-| | Vite 버전 (CSR) | Next.js 버전 (SSG) |
-| --- | --- | --- |
-| 처음 받는 HTML | 	`<div id="root"></div>` 만 있고 상품 내용 없음 | 상품 이름·가격이 이미 들어 있음 |
-| 상품 페이지 title | 모든 페이지 공통 (Objet & B \| 미니멀리스트 쇼핑몰) | 상품마다 다름 (상품명 \| Objet & B) |
-| 카카오톡 링크 미리보기 | 어느 상품이든 같은 모델 사진 | 그 상품의 사진과 이름 |
+|                        | Vite 버전 (CSR)                                     | Next.js 버전 (SSG)                  |
+| ---------------------- | --------------------------------------------------- | ----------------------------------- |
+| 처음 받는 HTML         | `<div id="root"></div>` 만 있고 상품 내용 없음      | 상품 이름·가격이 이미 들어 있음     |
+| 상품 페이지 title      | 모든 페이지 공통 (Objet & B \| 미니멀리스트 쇼핑몰) | 상품마다 다름 (상품명 \| Objet & B) |
+| 카카오톡 링크 미리보기 | 어느 상품이든 같은 모델 사진                        | 그 상품의 사진과 이름               |
 
 ## 사용 기술
 
 - Next.js 16 (App Router), React 19, TypeScript
+- Redux Toolkit (장바구니 cartSlice)
 - Tailwind CSS 4
-- 배포: Vercel    
+- 배포: Vercel
 
 ## 기능
 
 - 상품 목록 (`/products`): 서버 컴포넌트에서 상품 데이터를 바로 그림
 - 상품 상세 (`/products/[id]`): `generateStaticParams`로 빌드 때 16개를 미리 생성, `generateMetadata`로 상품마다 제목·설명·대표 이미지 지정
-- 옵션 선택 + 장바구니 담기: 옵션은 `"use client"` 컴포넌트, 장바구니는 Context + localStorage (첫 화면은 서버와 맞추고 마운트 후 불러옴)
+- 옵션 선택 + 장바구니 담기: 옵션은 `"use client"` 컴포넌트, 장바구니는 Redux Toolkit + localStorage (첫 화면은 서버와 맞추고 마운트 후(StoreProvider) 불러옴, 저장은 listener middleware)
 - 공통 헤더: 서버 컴포넌트, 장바구니 개수만 클라이언트 컴포넌트로 분리
 - 없는 주소·없는 상품: `not-found.tsx` (상세에서 상품이 없으면 `notFound()`)
 - 서버 금액 계산 (`POST /api/amount`): Route Handler. 상품 번호와 수량만 받아 서버가 합계를 다시 계산, 잘못된 요청은 400
@@ -36,6 +37,7 @@ Vite 기반 Objet & B의 상품 목록·상세·장바구니를 Next.js(App Rout
 
 ```
 app/                        ← 폴더 이름이 곧 주소
+├─ StoreProvider.tsx        앱 전체에 연결 + 마운트 후 불러오기
 ├─ layout.tsx               공통 틀 (헤더 + 장바구니 Provider)
 ├─ page.tsx                 /  메인
 ├─ not-found.tsx            없는 주소 안내
@@ -48,10 +50,15 @@ components/
 ├─ CartCount.tsx            클라이언트 컴포넌트(장바구니 카운트)
 ├─ ProductCard.tsx          서버 컴포넌트(상품 카드, 이름, 이미지, 가격)
 └─ ProductOptions.tsx       클라이언트 컴포넌트(상품 색상, 사이즈, 수량)
-context/CartContext.tsx     장바구니 상태 + useCart 훅
+store/
+├─ store.ts                 요청마다 새로 + 저장 리스너
+├─ cartSlice.ts             장바구니 데이터
+├─ cartStorage.ts           localStorage 읽기,쓰기
+└─ hooks.ts                 useSelector, useDispatch(타입)
 data/                       상품·옵션 데이터, 주문 규칙(MAX_QTY)
 utils/calculateAmount.ts    서버 금액 계산 함수
 ```
+
 ## 트러블슈팅
 
 ### 1. 장바구니 하이드레이션
@@ -62,7 +69,8 @@ utils/calculateAmount.ts    서버 금액 계산 함수
   - 첫 화면은 서버와 똑같이 빈 배열로 시작하고, 마운트 직후 실행되는 `useEffect`에서 localStorage를 불러옴
   - 저장 effect는 불러오기 전에 빈 배열로 덮어쓰지 않도록 `isLoaded` 상태로 막음
   - 마운트 후 setState를 막는 lint 규칙(`react-hooks/set-state-in-effect`)은 의도한 한 줄에만 이유 주석과 함께 비활성화
- 
+  - Redux로 바꾼 뒤에도 같은 순서 유지. 깃발은 slice의 isLoaded, dispatch라 lint 비활성화 불필요
+
 ### 2. 브랜치를 바꾼 뒤 tsc 에러
 
 - **문제:** 다른 브랜치로 옮긴 뒤 `npx tsc --noEmit`을 실행하자, 지금 브랜치에는 없는 `radix-test` 페이지를 찾지 못한다는 에러가 남 (`.next/dev/types/validator.ts`)
@@ -87,7 +95,3 @@ utils/calculateAmount.ts    서버 금액 계산 함수
 - 테스트: Vite 버전에는 금액 계산 함수의 Vitest 테스트가 있지만, 이 저장소에는 아직 없음
 - `/api/amount`를 화면에서 호출하기: 지금은 브라우저 콘솔로만 확인
 - 장바구니 수량 변경·삭제 화면
-- Redux Toolkit으로 장바구니 상태 관리 다시 만들기 (계획)
-
-
-
