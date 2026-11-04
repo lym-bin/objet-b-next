@@ -5,10 +5,12 @@ import type { CartItem } from "@/context/CartContext"; // Context 지울 때 옮
 
 interface CartState {
   items: CartItem[];
+  isLoaded: boolean; // 금고에서 불러왔는지 깃발
 }
 
 const initialState: CartState = {
   items: [],
+  isLoaded: false, // 처음 깃발 상태
 };
 
 const cartSlice = createSlice({
@@ -26,8 +28,13 @@ const cartSlice = createSlice({
         state.items.push({ ...item, id });
       }
     },
+    // 금고에서 꺼낸 목록으로 장부를 통째로 바꾸고 깃발 올리기
+    loadFromStorage(state, action: PayloadAction<CartItem[]>) {
+      state.items = action.payload;
+      state.isLoaded = true;
+    },
   },
 });
 
-export const { addItem } = cartSlice.actions;
+export const { addItem, loadFromStorage } = cartSlice.actions;
 export default cartSlice.reducer;
