@@ -1,7 +1,18 @@
 //store/cartSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { MAX_QTY } from "@/data/OrderRules";
-import type { CartItem } from "@/context/CartContext"; // Context 지울 때 옮길 예정
+
+// 장바구니 한 줄의 모양 (CartContext에서 이사 옴)
+export interface CartItem {
+  id: string; // productId-color-size
+  productId: number;
+  name: string;
+  price: number; // 단가 (총액은 계산으로)
+  color: string;
+  size: string;
+  qty: number;
+  imgSrc: string;
+}
 
 interface CartState {
   items: CartItem[];

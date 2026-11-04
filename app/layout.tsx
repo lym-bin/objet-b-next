@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { CartProvider } from "@/context/CartContext";
 import Header from "@/components/Header";
 import StoreProvider from "./StoreProvider";
 
@@ -31,10 +30,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <StoreProvider>
-          <CartProvider>
-            <Header />
-            {children}
-          </CartProvider>
+          <Header />
+          {children}
         </StoreProvider>
       </body>
     </html>

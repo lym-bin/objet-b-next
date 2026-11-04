@@ -1,5 +1,5 @@
 //store/cartStorage.ts
-import type { CartItem } from "@/context/CartContext";
+import type { CartItem } from "./cartSlice";
 
 export const CART_STORAGE_KEY = "objet-b-cart";
 
