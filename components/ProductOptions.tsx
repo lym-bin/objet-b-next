@@ -3,7 +3,8 @@
 import { useState } from "react";
 import type { ColorOption } from "@/data/OptionsData";
 import type { Product } from "@/data/ProductsData";
-import { useCart } from "@/context/CartContext";
+import { useAppDispatch } from "@/store/hooks";
+import { addItem } from "@/store/cartSlice";
 import { MAX_QTY } from "@/data/OrderRules";
 
 interface ProductOptionsProps {
@@ -21,7 +22,7 @@ export default function ProductOptions({
   const [selectedSize, setSelectedSize] = useState("");
   const [qty, setQty] = useState(1);
   const canAdd = selectedColor !== "" && selectedSize !== "";
-  const { addItem } = useCart();
+  const dispatch = useAppDispatch(); // 창구
 
   return (
     <div>
@@ -85,15 +86,17 @@ export default function ProductOptions({
         <button
           type="button"
           onClick={() =>
-            addItem({
-              productId: product.id,
-              name: product.name,
-              price: product.price,
-              imgSrc: product.imgSrc,
-              color: selectedColor,
-              size: selectedSize,
-              qty,
-            })
+            dispatch(
+              addItem({
+                productId: product.id,
+                name: product.name,
+                price: product.price,
+                imgSrc: product.imgSrc,
+                color: selectedColor,
+                size: selectedSize,
+                qty,
+              }),
+            )
           }
           disabled={!canAdd}
         >
